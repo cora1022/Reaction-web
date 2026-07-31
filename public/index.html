@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>반응속도 테스트 | 무료 온라인 클릭 반응 테스트</title>
+  <meta name="description" content="화면 색상이 바뀌는 순간 클릭해 반응속도를 밀리초 단위로 측정하세요. 5회 평균과 최고 기록을 무료로 확인할 수 있습니다.">
+  <link rel="canonical" href="https://reaction.cora1022.com/">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="ko_KR">
+  <meta property="og:title" content="반응속도 테스트">
+  <meta property="og:description" content="초록색 신호가 보이면 바로 클릭하고 반응속도를 확인하세요.">
+  <meta property="og:url" content="https://reaction.cora1022.com/">
+  <meta property="og:image" content="https://reaction.cora1022.com/og.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="google-adsense-account" content="ca-pub-6044197403684738">
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6044197403684738" crossorigin="anonymous"></script>
+  <link rel="icon" href="/cora-icon.png" type="image/png">
+  <link rel="stylesheet" href="/assets/css/styles.css?v=20260731-1">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"WebApplication","name":"Cora 반응속도 테스트","url":"https://reaction.cora1022.com/","description":"색상 신호가 바뀐 뒤 클릭하기까지 걸린 시간을 측정하는 무료 온라인 반응속도 테스트","applicationCategory":"GameApplication","operatingSystem":"Any","inLanguage":"ko-KR","offers":{"@type":"Offer","price":"0","priceCurrency":"KRW"}}
+  </script>
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"반응속도는 어떻게 측정하나요?","acceptedAnswer":{"@type":"Answer","text":"초록색 화면이 나타난 시점부터 사용자가 화면을 누른 시점까지의 시간을 밀리초 단위로 측정합니다."}},{"@type":"Question","name":"평균 반응속도는 몇 ms인가요?","acceptedAnswer":{"@type":"Answer","text":"기기, 입력 방식, 집중 상태에 따라 달라지며 이 테스트에서는 5회 측정 평균과 최고 기록을 함께 보여줍니다."}},{"@type":"Question","name":"기록이 서버에 저장되나요?","acceptedAnswer":{"@type":"Answer","text":"측정 결과는 사용 중인 기기의 브라우저 저장 공간에만 보관되며 서버로 전송하지 않습니다."}}]}
+  </script>
+</head>
+<body>
+  <a class="skip-link" href="#main">본문으로 이동</a>
+  <header class="site-header">
+    <div class="header-inner container">
+      <a class="brand" href="https://cora1022.com/" aria-label="Cora 서비스 홈">
+        <img class="brand-mark" src="/cora-icon.png" alt="" width="34" height="34">
+        <strong>Cora</strong>
+      </a>
+      <nav aria-label="페이지 메뉴">
+        <a href="#how-to">사용 방법</a>
+        <a href="#faq">자주 묻는 질문</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero container">
+      <p class="eyebrow">무료 미니 게임</p>
+      <h1>반응속도 테스트</h1>
+      <p>초록색 신호가 나타나는 순간 화면을 눌러 나의 반응속도를 확인해 보세요.</p>
+    </section>
+
+    <section class="test-shell container" aria-label="반응속도 측정">
+      <div class="test-card">
+        <div class="test-toolbar">
+          <div>
+            <strong>총 5회 측정</strong>
+            <span class="progress" data-progress role="group" aria-label="측정 진행 상황"></span>
+          </div>
+          <button class="text-button" type="button" data-restart>처음부터 다시</button>
+        </div>
+
+        <button class="reaction-pad" type="button" data-reaction-pad data-state="idle" aria-describedby="reaction-help">
+          <span class="pad-content" aria-live="assertive">
+            <span class="pad-kicker" data-pad-kicker>반응속도 측정</span>
+            <strong class="pad-title" data-pad-title>시작하려면 누르세요</strong>
+            <span class="pad-description" data-pad-description>초록색 화면이 나타나면 최대한 빠르게 다시 누르세요.</span>
+          </span>
+        </button>
+        <p id="reaction-help" hidden>마우스, 터치 또는 키보드의 Enter와 Space로 사용할 수 있습니다.</p>
+
+        <div class="result-panel" data-result-panel hidden>
+          <div class="summary-grid" role="group" aria-label="현재 측정 결과">
+            <div><span>이번 기록</span><strong data-current-value>—</strong></div>
+            <div><span>현재 최고</span><strong data-best-value>—</strong></div>
+            <div><span>현재 평균</span><strong data-average-value>—</strong></div>
+            <div><span>판정</span><strong data-performance>—</strong></div>
+          </div>
+          <ol class="trial-list" data-trials aria-label="회차별 반응속도"></ol>
+        </div>
+      </div>
+    </section>
+
+    <aside class="ad-slot" data-ad-position="middle" hidden aria-label="광고"></aside>
+
+    <section class="history-section">
+      <div class="container">
+        <div class="section-heading">
+          <div><p class="eyebrow">Records</p><h2>최근 테스트</h2></div>
+          <div class="best-ever"><span>이 기기의 최고 기록</span><strong data-best-ever>—</strong></div>
+        </div>
+        <p class="history-empty" data-history-empty>완료한 테스트가 아직 없습니다.</p>
+        <ol class="history-list" data-history aria-label="최근 반응속도 테스트 결과"></ol>
+      </div>
+    </section>
+
+    <div class="content container">
+      <section class="content-block" id="how-to">
+        <h2>반응속도 테스트 사용 방법</h2>
+        <ol>
+          <li>측정 화면을 눌러 테스트를 시작합니다.</li>
+          <li>빨간색 대기 화면에서는 누르지 않고 초록색 신호를 기다립니다.</li>
+          <li>초록색으로 바뀌면 가능한 한 빠르게 화면을 누릅니다.</li>
+          <li>5회 측정을 마치고 평균과 최고 기록을 확인합니다.</li>
+        </ol>
+      </section>
+
+      <section class="content-block">
+        <h2>더 정확하게 측정하려면</h2>
+        <div class="tip-grid">
+          <article><h3>같은 기기를 사용하세요</h3><p>마우스, 터치 화면과 키보드는 입력 지연이 다르므로 기록을 비교할 때 같은 방식을 사용하세요.</p></article>
+          <article><h3>신호를 예상하지 마세요</h3><p>초록색이 나타나는 시간은 매번 달라집니다. 화면을 미리 누르면 해당 시도는 기록되지 않습니다.</p></article>
+          <article><h3>여러 번 비교하세요</h3><p>한 번의 결과보다 5회 평균이 현재 집중 상태와 반응을 비교하는 데 더 유용합니다.</p></article>
+        </div>
+      </section>
+
+      <section class="content-block" id="faq">
+        <h2>자주 묻는 질문</h2>
+        <details><summary>반응속도는 어떻게 측정하나요?</summary><p>초록색 신호가 화면에 표시된 시점부터 화면을 누른 시점까지 걸린 시간을 브라우저의 고해상도 시계로 계산합니다.</p></details>
+        <details><summary>평균 반응속도는 몇 ms인가요?</summary><p>기기 성능과 입력 장치, 집중 상태에 따라 결과가 달라집니다. 절대적인 등급보다 같은 환경에서 기록이 어떻게 변하는지 비교하는 용도로 사용해 주세요.</p></details>
+        <details><summary>너무 빨리 누르면 어떻게 되나요?</summary><p>빨간색 대기 화면에서 누르면 부정 출발로 처리하며 기록에 포함하지 않습니다. 화면을 다시 눌러 같은 회차를 재시도할 수 있습니다.</p></details>
+        <details><summary>측정 기록이 서버에 저장되나요?</summary><p>최근 평균과 최고 기록은 이 기기의 브라우저 저장 공간에만 보관되며 서버로 전송하지 않습니다.</p></details>
+      </section>
+
+      <section class="related" aria-labelledby="related-title">
+        <div><p class="eyebrow">다른 Cora 서비스</p><h2 id="related-title">다른 게임도 즐겨보세요</h2></div>
+        <div class="related-actions">
+          <a class="button-secondary" href="https://tetris.cora1022.com/">테트리스</a>
+          <a class="button-secondary" href="https://dice.cora1022.com/">주사위 굴리기</a>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner container">
+      <div><strong>Cora 반응속도 테스트</strong><p>신호를 보고 누르는 시간을 간단하게 측정합니다.</p></div>
+      <nav aria-label="사이트 정책"><a href="/privacy.html">개인정보처리방침</a><a href="/terms.html">이용약관</a><a href="/contact.html">문의</a><a href="https://cora1022.com/">Cora 서비스</a></nav>
+      <small>© <span data-year></span> cora1022. All rights reserved.</small>
+    </div>
+  </footer>
+
+  <aside class="consent" data-consent hidden aria-label="방문 통계 설정">
+    <p>서비스 개선을 위해 익명 방문 통계를 사용합니다. <a href="/privacy.html">자세히 보기</a></p>
+    <div class="consent-actions"><button type="button" data-consent-reject>거부</button><button type="button" data-consent-accept>동의</button></div>
+  </aside>
+  <noscript><p class="noscript">반응속도 테스트를 사용하려면 JavaScript를 켜 주세요.</p></noscript>
+  <script type="module" src="/assets/js/app.js?v=20260731-1"></script>
+  <script type="module" src="/assets/js/analytics.js?v=20260731-1"></script>
+  <script type="module" src="/assets/js/ads.js?v=20260731-1"></script>
+</body>
+</html>
