@@ -16,7 +16,7 @@
   <meta name="google-adsense-account" content="ca-pub-6044197403684738">
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6044197403684738" crossorigin="anonymous"></script>
   <link rel="icon" href="/cora-icon.png" type="image/png">
-  <link rel="stylesheet" href="/assets/css/styles.css?v=20260731-1">
+  <link rel="stylesheet" href="/assets/css/styles.css?v=20260731-2">
   <script type="application/ld+json">
   {"@context":"https://schema.org","@type":"WebApplication","name":"Cora 반응속도 테스트","url":"https://reaction.cora1022.com/","description":"색상 신호가 바뀐 뒤 클릭하기까지 걸린 시간을 측정하는 무료 온라인 반응속도 테스트","applicationCategory":"GameApplication","operatingSystem":"Any","inLanguage":"ko-KR","offers":{"@type":"Offer","price":"0","priceCurrency":"KRW"}}
   </script>
@@ -72,7 +72,28 @@
             <div><span>현재 평균</span><strong data-average-value>—</strong></div>
             <div><span>판정</span><strong data-performance>—</strong></div>
           </div>
-          <ol class="trial-list" data-trials aria-label="회차별 반응속도"></ol>
+          <div class="trial-chart" data-trial-chart-wrap>
+            <div class="chart-heading">
+              <strong>회차별 반응속도</strong>
+              <span>낮을수록 빠른 기록</span>
+            </div>
+            <canvas data-trial-chart role="img" aria-label="아직 측정된 회차가 없습니다."></canvas>
+          </div>
+
+          <section class="distribution-result" data-distribution-result hidden aria-labelledby="distribution-title">
+            <div class="distribution-copy">
+              <div>
+                <span class="distribution-eyebrow">5회 평균 분석</span>
+                <h2 id="distribution-title" data-distribution-rank>분포 위치 계산 중</h2>
+                <p data-distribution-description></p>
+              </div>
+              <strong class="distribution-average" data-distribution-average></strong>
+            </div>
+            <div class="distribution-chart">
+              <canvas data-distribution-chart role="img" aria-label="반응속도 기준 분포 그래프"></canvas>
+            </div>
+            <p class="distribution-note">평균 250ms, 표준편차 50ms의 단순 비교 모델을 사용한 참고 결과입니다. 기기와 입력 방식에 따라 차이가 날 수 있습니다.</p>
+          </section>
         </div>
       </div>
     </section>
@@ -97,7 +118,7 @@
           <li>측정 화면을 눌러 테스트를 시작합니다.</li>
           <li>빨간색 대기 화면에서는 누르지 않고 초록색 신호를 기다립니다.</li>
           <li>초록색으로 바뀌면 가능한 한 빠르게 화면을 누릅니다.</li>
-          <li>5회 측정을 마치고 평균과 최고 기록을 확인합니다.</li>
+          <li>5회 측정을 마치고 평균·최고 기록과 기준 분포에서 내 위치를 확인합니다.</li>
         </ol>
       </section>
 
@@ -116,6 +137,7 @@
         <details><summary>평균 반응속도는 몇 ms인가요?</summary><p>기기 성능과 입력 장치, 집중 상태에 따라 결과가 달라집니다. 절대적인 등급보다 같은 환경에서 기록이 어떻게 변하는지 비교하는 용도로 사용해 주세요.</p></details>
         <details><summary>너무 빨리 누르면 어떻게 되나요?</summary><p>빨간색 대기 화면에서 누르면 부정 출발로 처리하며 기록에 포함하지 않습니다. 화면을 다시 눌러 같은 회차를 재시도할 수 있습니다.</p></details>
         <details><summary>측정 기록이 서버에 저장되나요?</summary><p>최근 평균과 최고 기록은 이 기기의 브라우저 저장 공간에만 보관되며 서버로 전송하지 않습니다.</p></details>
+        <details><summary>정규분포 결과는 절대적인 순위인가요?</summary><p>아닙니다. 평균 250ms와 표준편차 50ms를 사용한 단순 비교 모델의 참고 결과입니다. 기기 성능과 입력 장치, 화면 주사율에 따라 기록이 달라질 수 있습니다.</p></details>
       </section>
 
       <section class="related" aria-labelledby="related-title">
@@ -141,7 +163,7 @@
     <div class="consent-actions"><button type="button" data-consent-reject>거부</button><button type="button" data-consent-accept>동의</button></div>
   </aside>
   <noscript><p class="noscript">반응속도 테스트를 사용하려면 JavaScript를 켜 주세요.</p></noscript>
-  <script type="module" src="/assets/js/app.js?v=20260731-2"></script>
+  <script type="module" src="/assets/js/app.js?v=20260731-3"></script>
   <script type="module" src="/assets/js/analytics.js?v=20260731-1"></script>
   <script type="module" src="/assets/js/ads.js?v=20260731-1"></script>
 </body>
