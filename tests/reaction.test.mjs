@@ -4,9 +4,13 @@ import { readFile } from 'node:fs/promises';
 import {
   MAX_WAIT_MS,
   MIN_WAIT_MS,
+  REFERENCE_MEAN_MS,
+  REFERENCE_STANDARD_DEVIATION_MS,
   TRIAL_COUNT,
+  getDistributionPosition,
   getPerformanceLabel,
   getWaitDelay,
+  normalCdf,
   secureRandomInt,
   summarizeResults,
 } from '../public/assets/js/reaction-core.js';
@@ -43,6 +47,16 @@ test('잘못된 결과값은 요약하지 않는다', () => {
   assert.throws(() => summarizeResults([200, -1]), /기록/);
 });
 
+test('평균 기록의 정규분포 위치를 계산한다', () => {
+  assert.ok(Math.abs(normalCdf(REFERENCE_MEAN_MS) - 0.5) < 0.000001);
+  assert.equal(REFERENCE_STANDARD_DEVIATION_MS, 50);
+  assert.deepEqual(getDistributionPosition(200), {
+    zScore: -1,
+    topPercent: 16,
+    fasterThanPercent: 84,
+  });
+});
+
 test('화면은 핵심 모듈과 5회 진행 UI를 사용한다', async () => {
   const app = await readFile(new URL('../public/assets/js/app.js', import.meta.url), 'utf8');
   const html = await readFile(new URL('../public/index.html', import.meta.url), 'utf8');
@@ -51,6 +65,9 @@ test('화면은 핵심 모듈과 5회 진행 UI를 사용한다', async () => {
   assert.match(app, /visibilitychange/);
   assert.match(app, /NEXT_TRIAL_DELAY_MS/);
   assert.match(app, /window\.setTimeout\(\(\) => \{\s*timerId = null;\s*startWaiting\(\);/);
+  assert.match(app, /renderTrialChart/);
+  assert.match(app, /renderDistribution/);
   assert.match(html, /총 5회 측정/);
   assert.match(html, /data-reaction-pad/);
+  assert.match(html, /data-distribution-chart/);
 });

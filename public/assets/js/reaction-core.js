@@ -1,6 +1,8 @@
 export const MIN_WAIT_MS = 1600;
 export const MAX_WAIT_MS = 4200;
 export const TRIAL_COUNT = 5;
+export const REFERENCE_MEAN_MS = 250;
+export const REFERENCE_STANDARD_DEVIATION_MS = 50;
 
 export function secureRandomInt(maxExclusive, cryptoSource = globalThis.crypto) {
   if (!Number.isInteger(maxExclusive) || maxExclusive <= 0) {
@@ -52,3 +54,41 @@ export function getPerformanceLabel(milliseconds) {
   return '천천히 반응함';
 }
 
+function errorFunction(value) {
+  const sign = value < 0 ? -1 : 1;
+  const absolute = Math.abs(value);
+  const t = 1 / (1 + (0.3275911 * absolute));
+  let polynomial = 1.061405429;
+  polynomial = (polynomial * t) - 1.453152027;
+  polynomial = (polynomial * t) + 1.421413741;
+  polynomial = (polynomial * t) - 0.284496736;
+  polynomial = ((polynomial * t) + 0.254829592) * t;
+  return sign * (1 - (polynomial * Math.exp(-(absolute ** 2))));
+}
+
+export function normalCdf(
+  value,
+  mean = REFERENCE_MEAN_MS,
+  standardDeviation = REFERENCE_STANDARD_DEVIATION_MS,
+) {
+  if (![value, mean, standardDeviation].every(Number.isFinite) || standardDeviation <= 0) {
+    throw new RangeError('정규분포 계산에는 유효한 값과 0보다 큰 표준편차가 필요합니다.');
+  }
+  return 0.5 * (1 + errorFunction((value - mean) / (standardDeviation * Math.sqrt(2))));
+}
+
+export function getDistributionPosition(milliseconds) {
+  if (!Number.isFinite(milliseconds) || milliseconds < 0) {
+    throw new RangeError('반응속도는 0 이상의 숫자여야 합니다.');
+  }
+
+  const cumulative = normalCdf(milliseconds);
+  const topPercent = Math.min(99, Math.max(1, Math.round(cumulative * 100)));
+  const fasterThanPercent = Math.min(99, Math.max(1, Math.round((1 - cumulative) * 100)));
+
+  return {
+    zScore: Number(((milliseconds - REFERENCE_MEAN_MS) / REFERENCE_STANDARD_DEVIATION_MS).toFixed(2)),
+    topPercent,
+    fasterThanPercent,
+  };
+}

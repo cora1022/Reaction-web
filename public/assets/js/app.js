@@ -1,9 +1,12 @@
 import {
+  REFERENCE_MEAN_MS,
+  REFERENCE_STANDARD_DEVIATION_MS,
   TRIAL_COUNT,
+  getDistributionPosition,
   getPerformanceLabel,
   getWaitDelay,
   summarizeResults,
-} from './reaction-core.js?v=20260731-1';
+} from './reaction-core.js?v=20260731-2';
 
 const STORAGE_KEY = 'cora-reaction:records:v1';
 const NEXT_TRIAL_DELAY_MS = 1200;
@@ -17,7 +20,12 @@ const currentValue = document.querySelector('[data-current-value]');
 const bestValue = document.querySelector('[data-best-value]');
 const averageValue = document.querySelector('[data-average-value]');
 const performanceValue = document.querySelector('[data-performance]');
-const trialList = document.querySelector('[data-trials]');
+const trialChart = document.querySelector('[data-trial-chart]');
+const distributionResult = document.querySelector('[data-distribution-result]');
+const distributionChart = document.querySelector('[data-distribution-chart]');
+const distributionRank = document.querySelector('[data-distribution-rank]');
+const distributionDescription = document.querySelector('[data-distribution-description]');
+const distributionAverage = document.querySelector('[data-distribution-average]');
 const restartButton = document.querySelector('[data-restart]');
 const historyList = document.querySelector('[data-history]');
 const historyEmpty = document.querySelector('[data-history-empty]');
@@ -75,16 +83,176 @@ function renderProgress() {
   }
 }
 
-function renderTrialList() {
-  trialList.replaceChildren();
+function prepareCanvas(canvas, height) {
+  const width = Math.max(280, Math.floor(canvas.parentElement.clientWidth));
+  const pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+  canvas.width = Math.round(width * pixelRatio);
+  canvas.height = Math.round(height * pixelRatio);
+  canvas.style.height = `${height}px`;
+  const context = canvas.getContext('2d');
+  context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+  context.clearRect(0, 0, width, height);
+  return { context, width, height };
+}
+
+function renderTrialChart() {
+  if (resultPanel.hidden || trials.length === 0) return;
+
+  trialChart.setAttribute(
+    'aria-label',
+    `회차별 반응속도 그래프: ${trials.map((value, index) => `${index + 1}회 ${value}밀리초`).join(', ')}`,
+  );
+
+  const { context, width, height } = prepareCanvas(trialChart, 210);
+  const padding = { top: 30, right: 24, bottom: 38, left: 48 };
+  const plotWidth = width - padding.left - padding.right;
+  const plotHeight = height - padding.top - padding.bottom;
+  const minimum = Math.min(...trials);
+  const maximum = Math.max(...trials);
+  const lower = Math.max(0, minimum - 45);
+  const upper = Math.max(lower + 90, maximum + 45);
+  const xFor = (index) => padding.left + ((TRIAL_COUNT === 1 ? 0.5 : index / (TRIAL_COUNT - 1)) * plotWidth);
+  const yFor = (value) => padding.top + (((upper - value) / (upper - lower)) * plotHeight);
+
+  context.font = '700 11px system-ui, sans-serif';
+  context.textBaseline = 'middle';
+  context.strokeStyle = '#e7e9f1';
+  context.fillStyle = '#7c8497';
+  context.lineWidth = 1;
+
+  for (let index = 0; index <= 3; index += 1) {
+    const ratio = index / 3;
+    const y = padding.top + (ratio * plotHeight);
+    const value = Math.round(upper - (ratio * (upper - lower)));
+    context.beginPath();
+    context.moveTo(padding.left, y);
+    context.lineTo(width - padding.right, y);
+    context.stroke();
+    context.textAlign = 'right';
+    context.fillText(`${value}`, padding.left - 9, y);
+  }
+
+  context.strokeStyle = '#6375f4';
+  context.lineWidth = 3;
+  context.lineJoin = 'round';
+  context.lineCap = 'round';
+  context.beginPath();
   trials.forEach((value, index) => {
-    const item = document.createElement('li');
-    const label = document.createElement('span');
-    const result = document.createElement('strong');
-    label.textContent = `${index + 1}회`;
-    result.textContent = `${value} ms`;
-    item.append(label, result);
-    trialList.appendChild(item);
+    const x = xFor(index);
+    const y = yFor(value);
+    if (index === 0) context.moveTo(x, y);
+    else context.lineTo(x, y);
+  });
+  context.stroke();
+
+  trials.forEach((value, index) => {
+    const x = xFor(index);
+    const y = yFor(value);
+    context.fillStyle = '#ffffff';
+    context.strokeStyle = '#6375f4';
+    context.lineWidth = 3;
+    context.beginPath();
+    context.arc(x, y, 5.5, 0, Math.PI * 2);
+    context.fill();
+    context.stroke();
+
+    context.fillStyle = '#28336e';
+    context.font = '800 11px system-ui, sans-serif';
+    context.textAlign = 'center';
+    context.fillText(`${value} ms`, x, Math.max(13, y - 15));
+  });
+
+  context.fillStyle = '#7c8497';
+  context.font = '700 11px system-ui, sans-serif';
+  context.textBaseline = 'alphabetic';
+  for (let index = 0; index < TRIAL_COUNT; index += 1) {
+    context.textAlign = 'center';
+    context.fillText(`${index + 1}회`, xFor(index), height - 10);
+  }
+}
+
+function renderDistribution(average) {
+  const position = getDistributionPosition(average);
+  distributionRank.textContent = `빠른 상위 ${position.topPercent}%`;
+  distributionDescription.textContent = `기준 분포에서 약 ${position.fasterThanPercent}%보다 빠른 기록입니다.`;
+  distributionAverage.textContent = `${average} ms`;
+  distributionChart.setAttribute(
+    'aria-label',
+    `평균 ${average}밀리초, 기준 분포에서 빠른 상위 ${position.topPercent}퍼센트`,
+  );
+
+  const { context, width, height } = prepareCanvas(distributionChart, 240);
+  const padding = { top: 35, right: 28, bottom: 42, left: 28 };
+  const plotWidth = width - padding.left - padding.right;
+  const plotHeight = height - padding.top - padding.bottom;
+  const start = REFERENCE_MEAN_MS - (3 * REFERENCE_STANDARD_DEVIATION_MS);
+  const end = REFERENCE_MEAN_MS + (3 * REFERENCE_STANDARD_DEVIATION_MS);
+  const xFor = (value) => padding.left + (((value - start) / (end - start)) * plotWidth);
+  const densityFor = (value) => Math.exp(-0.5 * (((value - REFERENCE_MEAN_MS) / REFERENCE_STANDARD_DEVIATION_MS) ** 2));
+  const yFor = (value) => padding.top + ((1 - densityFor(value)) * (plotHeight - 15));
+
+  context.beginPath();
+  context.moveTo(xFor(start), padding.top + plotHeight);
+  for (let step = 0; step <= 120; step += 1) {
+    const value = start + ((step / 120) * (end - start));
+    context.lineTo(xFor(value), yFor(value));
+  }
+  context.lineTo(xFor(end), padding.top + plotHeight);
+  context.closePath();
+  context.fillStyle = 'rgba(99, 117, 244, .16)';
+  context.fill();
+
+  context.beginPath();
+  for (let step = 0; step <= 120; step += 1) {
+    const value = start + ((step / 120) * (end - start));
+    const x = xFor(value);
+    const y = yFor(value);
+    if (step === 0) context.moveTo(x, y);
+    else context.lineTo(x, y);
+  }
+  context.strokeStyle = '#6375f4';
+  context.lineWidth = 3;
+  context.stroke();
+
+  const markerValue = Math.max(start, Math.min(end, average));
+  const markerX = xFor(markerValue);
+  const markerY = yFor(markerValue);
+  context.beginPath();
+  context.moveTo(markerX, markerY);
+  context.lineTo(markerX, padding.top + plotHeight);
+  context.strokeStyle = '#ef4444';
+  context.lineWidth = 2;
+  context.setLineDash([5, 5]);
+  context.stroke();
+  context.setLineDash([]);
+  context.fillStyle = '#ef4444';
+  context.beginPath();
+  context.arc(markerX, markerY, 6, 0, Math.PI * 2);
+  context.fill();
+
+  context.fillStyle = '#111827';
+  context.font = '800 12px system-ui, sans-serif';
+  context.textAlign = markerX < width / 2 ? 'left' : 'right';
+  context.fillText(`내 평균 ${average} ms`, markerX + (markerX < width / 2 ? 10 : -10), Math.max(18, markerY - 12));
+
+  const axisY = padding.top + plotHeight;
+  context.strokeStyle = '#cfd3e1';
+  context.lineWidth = 1;
+  context.beginPath();
+  context.moveTo(padding.left, axisY);
+  context.lineTo(width - padding.right, axisY);
+  context.stroke();
+
+  context.fillStyle = '#7c8497';
+  context.font = '700 11px system-ui, sans-serif';
+  context.textBaseline = 'alphabetic';
+  [
+    [start, '100ms · 빠름'],
+    [REFERENCE_MEAN_MS, '250ms · 기준'],
+    [end, '400ms · 느림'],
+  ].forEach(([value, label]) => {
+    context.textAlign = value === start ? 'left' : value === end ? 'right' : 'center';
+    context.fillText(label, xFor(value), height - 11);
   });
 }
 
@@ -129,16 +297,26 @@ function showTrialResult(milliseconds) {
   bestValue.textContent = `${Math.min(...trials)} ms`;
   averageValue.textContent = `${summarizeResults(trials).average} ms`;
   performanceValue.textContent = getPerformanceLabel(milliseconds);
-  renderTrialList();
   renderProgress();
   resultPanel.hidden = false;
+  distributionResult.hidden = true;
+  renderTrialChart();
 
   if (trials.length >= TRIAL_COUNT) {
     const summary = summarizeResults(trials);
+    performanceValue.textContent = getPerformanceLabel(summary.average);
     sessions = [{ ...summary, createdAt: Date.now() }, ...sessions].slice(0, 10);
     saveSessions();
     renderHistory();
+    distributionResult.hidden = false;
+    renderDistribution(summary.average);
     setPad('complete', '측정 완료', `평균 ${summary.average} ms`, `최고 기록은 ${summary.best} ms입니다. 눌러서 새 테스트를 시작하세요.`);
+    window.requestAnimationFrame(() => {
+      distributionResult.scrollIntoView({
+        behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+        block: 'nearest',
+      });
+    });
     return;
   }
 
@@ -176,7 +354,7 @@ function resetTest() {
   bestValue.textContent = '—';
   averageValue.textContent = '—';
   performanceValue.textContent = '—';
-  renderTrialList();
+  distributionResult.hidden = true;
   setPad('idle', '반응속도 측정', '시작하려면 누르세요', '초록색 화면이 나타나면 최대한 빠르게 다시 누르세요.');
   renderProgress();
 }
@@ -187,6 +365,12 @@ document.addEventListener('visibilitychange', () => {
   if (document.hidden && (state === 'waiting' || state === 'ready' || state === 'result')) {
     clearTimer();
     setPad('false-start', '측정이 중단됐어요', '화면을 계속 보고 측정해 주세요', '눌러서 이 측정을 다시 시작하세요.');
+  }
+});
+window.addEventListener('resize', () => {
+  if (!resultPanel.hidden && trials.length > 0) {
+    renderTrialChart();
+    if (!distributionResult.hidden) renderDistribution(summarizeResults(trials).average);
   }
 });
 
