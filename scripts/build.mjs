@@ -14,6 +14,10 @@ const required = [
   'sitemap.xml',
   'cora-icon.png',
   'og.png',
+  'assets/css/styles.css',
+  'assets/js/ads.js',
+  'assets/js/analytics.js',
+  'assets/js/app.js',
   'assets/js/reaction-core.js',
 ];
 
@@ -22,4 +26,3 @@ await rm(output, { recursive: true, force: true });
 await mkdir(output, { recursive: true });
 await cp(source, output, { recursive: true });
 console.log(`Built ${required.length} required assets into dist/.`);
-
