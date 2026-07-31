@@ -6,6 +6,7 @@ import {
 } from './reaction-core.js?v=20260731-1';
 
 const STORAGE_KEY = 'cora-reaction:records:v1';
+const NEXT_TRIAL_DELAY_MS = 1200;
 const pad = document.querySelector('[data-reaction-pad]');
 const padKicker = document.querySelector('[data-pad-kicker]');
 const padTitle = document.querySelector('[data-pad-title]');
@@ -141,11 +142,15 @@ function showTrialResult(milliseconds) {
     return;
   }
 
-  setPad('result', `${trials.length}회 측정`, `${milliseconds} ms`, '눌러서 다음 측정을 시작하세요.');
+  setPad('result', `${trials.length}회 측정`, `${milliseconds} ms`, '잠시 후 다음 측정이 자동으로 시작됩니다.');
+  timerId = window.setTimeout(() => {
+    timerId = null;
+    startWaiting();
+  }, NEXT_TRIAL_DELAY_MS);
 }
 
 function handlePadActivation() {
-  if (state === 'idle' || state === 'false-start' || state === 'result') {
+  if (state === 'idle' || state === 'false-start') {
     startWaiting();
     return;
   }
@@ -179,7 +184,7 @@ function resetTest() {
 pad.addEventListener('click', handlePadActivation);
 restartButton.addEventListener('click', resetTest);
 document.addEventListener('visibilitychange', () => {
-  if (document.hidden && (state === 'waiting' || state === 'ready')) {
+  if (document.hidden && (state === 'waiting' || state === 'ready' || state === 'result')) {
     clearTimer();
     setPad('false-start', '측정이 중단됐어요', '화면을 계속 보고 측정해 주세요', '눌러서 이 측정을 다시 시작하세요.');
   }
@@ -187,4 +192,3 @@ document.addEventListener('visibilitychange', () => {
 
 resetTest();
 renderHistory();
-

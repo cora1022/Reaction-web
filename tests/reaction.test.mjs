@@ -49,7 +49,8 @@ test('화면은 핵심 모듈과 5회 진행 UI를 사용한다', async () => {
   assert.match(app, /reaction-core\.js\?v=/);
   assert.match(app, /performance\.now\(\)/);
   assert.match(app, /visibilitychange/);
+  assert.match(app, /NEXT_TRIAL_DELAY_MS/);
+  assert.match(app, /window\.setTimeout\(\(\) => \{\s*timerId = null;\s*startWaiting\(\);/);
   assert.match(html, /총 5회 측정/);
   assert.match(html, /data-reaction-pad/);
 });
-
