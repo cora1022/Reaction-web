@@ -71,3 +71,17 @@ test('화면은 핵심 모듈과 5회 진행 UI를 사용한다', async () => {
   assert.match(html, /data-reaction-pad/);
   assert.match(html, /data-distribution-chart/);
 });
+
+test('AdSense 검토에 필요한 광고 식별자와 개인정보 안내를 제공한다', async () => {
+  const html = await readFile(new URL('../public/index.html', import.meta.url), 'utf8');
+  const privacy = await readFile(new URL('../public/privacy.html', import.meta.url), 'utf8');
+  const analytics = await readFile(new URL('../public/assets/js/analytics.js', import.meta.url), 'utf8');
+
+  assert.match(html, /ca-pub-6044197403684738/);
+  assert.match(html, /href="\/privacy\.html"/);
+  assert.match(html, /data-consent-settings/);
+  assert.match(privacy, /Google AdSense/);
+  assert.match(privacy, /policies\.google\.com\/technologies\/ads/);
+  assert.match(privacy, /Google 인증 동의 관리 플랫폼/);
+  assert.match(analytics, /analyticsWasLoaded/);
+});
