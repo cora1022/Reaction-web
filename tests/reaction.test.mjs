@@ -65,6 +65,9 @@ test('화면은 핵심 모듈과 5회 진행 UI를 사용한다', async () => {
   assert.match(app, /visibilitychange/);
   assert.match(app, /NEXT_TRIAL_DELAY_MS/);
   assert.match(app, /window\.setTimeout\(\(\) => \{\s*timerId = null;\s*startWaiting\(\);/);
+  assert.match(app, /function clearCurrentTest\(\) \{[\s\S]*?trials = \[\];[\s\S]*?resultPanel\.hidden = true;/);
+  assert.match(app, /function showFalseStart\(\) \{\s*clearCurrentTest\(\);/);
+  assert.match(app, /눌러서 1회차부터 다시 시작하세요/);
   assert.match(app, /renderTrialChart/);
   assert.match(app, /renderDistribution/);
   assert.match(html, /총 5회 측정/);
