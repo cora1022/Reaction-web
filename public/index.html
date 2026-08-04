@@ -118,7 +118,7 @@
 
     <div class="content container">
       <section class="content-block" id="how-to">
-        <h2>반응속도 테스트 사용 방법</h2>
+        <h2>온라인 반응속도 테스트 방법</h2>
         <ol>
           <li>측정 화면을 눌러 테스트를 시작합니다.</li>
           <li>빨간색 대기 화면에서는 누르지 않고 초록색 신호를 기다립니다.</li>
@@ -127,26 +127,29 @@
         </ol>
       </section>
 
-      <section class="content-block">
-        <h2>더 정확하게 측정하려면</h2>
+      <section class="content-block" id="interpretation">
+        <h2>반응속도 평균 기준</h2>
         <div class="tip-grid">
-          <article><h3>같은 기기를 사용하세요</h3><p>마우스, 터치 화면과 키보드는 입력 지연이 다르므로 기록을 비교할 때 같은 방식을 사용하세요.</p></article>
-          <article><h3>신호를 예상하지 마세요</h3><p>초록색이 나타나는 시간은 매번 달라집니다. 화면을 미리 누르면 해당 시도는 기록되지 않습니다.</p></article>
-          <article><h3>여러 번 비교하세요</h3><p>한 번의 결과보다 5회 평균이 현재 집중 상태와 반응을 비교하는 데 더 유용합니다.</p></article>
+          <article><h3>180ms 미만</h3><p>이 테스트에서는 매우 빠른 기록으로 표시합니다.</p></article>
+          <article><h3>180~229ms</h3><p>빠른 기록으로 표시합니다.</p></article>
+          <article><h3>230~299ms</h3><p>보통 범위의 기록으로 표시합니다.</p></article>
+          <article><h3>300~399ms</h3><p>조금 느린 기록으로 표시합니다.</p></article>
+          <article><h3>400ms 이상</h3><p>천천히 반응한 기록으로 표시합니다.</p></article>
         </div>
+        <p>위 구간은 이 사이트에서 결과를 쉽게 비교하기 위해 사용하는 자체 기준입니다. 실제 인구 통계나 의학적 진단 기준이 아니며 기기와 입력 방식에 따라 기록이 달라질 수 있습니다.</p>
       </section>
 
-      <section class="content-block" id="interpretation">
-        <h2>반응속도 결과를 해석하는 방법</h2>
-        <div class="explanation-copy">
-          <p>이 테스트는 초록색 신호를 화면에 표시한 시점과 사용자가 화면을 누른 시점의 차이를 브라우저의 고해상도 시계로 계산합니다. 인터넷 통신 시간은 측정에 포함되지 않지만 디스플레이 주사율, 마우스·터치 입력 지연과 브라우저 상태는 결과에 영향을 줄 수 있습니다.</p>
-          <p>회차별 선 그래프는 5번의 기록이 얼마나 일정했는지 보여줍니다. 한 번만 유난히 느린 기록이 있다면 순간적인 집중 저하나 입력 지연일 수 있으므로, 최고 기록 하나보다 5회 평균과 변화 폭을 함께 보는 편이 좋습니다.</p>
-          <p>최종 분포 그래프는 평균 250ms, 표준편차 50ms인 단순 비교 모델에 내 평균을 표시한 참고 자료입니다. 실제 인구 통계나 의학적 평가가 아니므로 절대적인 능력 순위로 해석하지 말고, 같은 기기와 입력 방식에서 자신의 기록 변화를 비교하는 용도로 사용해 주세요.</p>
+      <section class="content-block">
+        <h2>반응속도 기록에 영향을 주는 요소</h2>
+        <div class="tip-grid">
+          <article><h3>마우스와 터치 입력</h3><p>마우스, 터치 화면과 키보드는 입력 지연이 다릅니다. 기록을 비교할 때는 같은 기기와 같은 입력 방식을 사용하세요.</p></article>
+          <article><h3>화면 주사율과 성능</h3><p>화면이 신호를 표시하는 시점과 브라우저 상태에 따라 수십 ms 차이가 생길 수 있습니다. 다른 기기의 결과를 절대적인 순위로 비교하지 마세요.</p></article>
+          <article><h3>5회 평균과 최고 기록</h3><p>최고 기록은 가장 빨랐던 한 번이고 평균은 전체적인 일관성을 보여줍니다. 한 번의 수치보다 5회 그래프와 평균을 함께 확인하세요.</p></article>
         </div>
       </section>
 
       <section class="content-block" id="faq">
-        <h2>자주 묻는 질문</h2>
+        <h2>반응속도 테스트 자주 묻는 질문</h2>
         <details><summary>반응속도는 어떻게 측정하나요?</summary><p>초록색 신호가 화면에 표시된 시점부터 화면을 누른 시점까지 걸린 시간을 브라우저의 고해상도 시계로 계산합니다.</p></details>
         <details><summary>평균 반응속도는 몇 ms인가요?</summary><p>기기 성능과 입력 장치, 집중 상태에 따라 결과가 달라집니다. 절대적인 등급보다 같은 환경에서 기록이 어떻게 변하는지 비교하는 용도로 사용해 주세요.</p></details>
         <details><summary>너무 빨리 누르면 어떻게 되나요?</summary><p>빨간색 대기 화면에서 누르면 부정 출발로 처리합니다. 진행 중인 기록은 모두 초기화되며 화면을 다시 눌러 1회차부터 시작할 수 있습니다.</p></details>
@@ -157,8 +160,8 @@
       <section class="related" aria-labelledby="related-title">
         <div><p class="eyebrow">다른 Cora 서비스</p><h2 id="related-title">다른 게임도 즐겨보세요</h2></div>
         <div class="related-actions">
-          <a class="button-secondary" href="https://tetris.cora1022.com/">테트리스</a>
-          <a class="button-secondary" href="https://dice.cora1022.com/">주사위 굴리기</a>
+          <a class="button-secondary" href="https://tetris.cora1022.com/">무료 온라인 테트리스</a>
+          <a class="button-secondary" href="https://dice.cora1022.com/">온라인 주사위 굴리기</a>
         </div>
       </section>
     </div>
