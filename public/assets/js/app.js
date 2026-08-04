@@ -7,6 +7,7 @@ import {
   getWaitDelay,
   summarizeResults,
 } from './reaction-core.js?v=20260731-2';
+import { shareResult } from './share-result.js?v=20260805-1';
 
 const STORAGE_KEY = 'cora-reaction:records:v1';
 const NEXT_TRIAL_DELAY_MS = 1200;
@@ -27,6 +28,8 @@ const distributionRank = document.querySelector('[data-distribution-rank]');
 const distributionDescription = document.querySelector('[data-distribution-description]');
 const distributionAverage = document.querySelector('[data-distribution-average]');
 const restartButton = document.querySelector('[data-restart]');
+const shareResultButton = document.querySelector('[data-share-result]');
+const shareStatus = document.querySelector('[data-share-status]');
 const historyList = document.querySelector('[data-history]');
 const historyEmpty = document.querySelector('[data-history-empty]');
 const bestEver = document.querySelector('[data-best-ever]');
@@ -294,6 +297,7 @@ function clearCurrentTest() {
   averageValue.textContent = '—';
   performanceValue.textContent = '—';
   distributionResult.hidden = true;
+  shareStatus.textContent = '';
 }
 
 function showFalseStart() {
@@ -365,6 +369,20 @@ function resetTest() {
 
 pad.addEventListener('click', handlePadActivation);
 restartButton.addEventListener('click', resetTest);
+shareResultButton.addEventListener('click', async () => {
+  if (state !== 'complete' || trials.length < TRIAL_COUNT) return;
+  const summary = summarizeResults(trials);
+  shareResultButton.disabled = true;
+  const result = await shareResult({
+    title: 'Cora 반응속도 테스트 결과',
+    text: `반응속도 테스트에서 5회 평균 ${summary.average}ms · 최고 ${summary.best}ms를 기록했어요.`,
+    url: 'https://reaction.cora1022.com/',
+  });
+  shareResultButton.disabled = false;
+  if (result === 'shared') shareStatus.textContent = '공유했습니다.';
+  if (result === 'copied') shareStatus.textContent = '결과와 주소를 복사했습니다.';
+  if (result === 'unavailable') shareStatus.textContent = '이 브라우저에서는 공유할 수 없습니다.';
+});
 document.addEventListener('visibilitychange', () => {
   if (document.hidden && (state === 'waiting' || state === 'ready' || state === 'result')) {
     clearCurrentTest();
