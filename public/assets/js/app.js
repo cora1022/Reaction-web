@@ -285,9 +285,20 @@ function startWaiting() {
   }, delay);
 }
 
-function showFalseStart() {
+function clearCurrentTest() {
   clearTimer();
-  setPad('false-start', '너무 빨랐어요', '초록색이 된 뒤 눌러주세요', '이 시도는 기록하지 않습니다. 눌러서 다시 시작하세요.');
+  trials = [];
+  resultPanel.hidden = true;
+  currentValue.textContent = '—';
+  bestValue.textContent = '—';
+  averageValue.textContent = '—';
+  performanceValue.textContent = '—';
+  distributionResult.hidden = true;
+}
+
+function showFalseStart() {
+  clearCurrentTest();
+  setPad('false-start', '너무 빨랐어요', '처음부터 다시 측정합니다', '지금까지의 기록을 모두 지웠습니다. 눌러서 1회차부터 다시 시작하세요.');
   renderProgress();
 }
 
@@ -347,14 +358,7 @@ function handlePadActivation() {
 }
 
 function resetTest() {
-  clearTimer();
-  trials = [];
-  resultPanel.hidden = true;
-  currentValue.textContent = '—';
-  bestValue.textContent = '—';
-  averageValue.textContent = '—';
-  performanceValue.textContent = '—';
-  distributionResult.hidden = true;
+  clearCurrentTest();
   setPad('idle', '반응속도 측정', '시작하려면 누르세요', '초록색 화면이 나타나면 최대한 빠르게 다시 누르세요.');
   renderProgress();
 }
@@ -363,8 +367,9 @@ pad.addEventListener('click', handlePadActivation);
 restartButton.addEventListener('click', resetTest);
 document.addEventListener('visibilitychange', () => {
   if (document.hidden && (state === 'waiting' || state === 'ready' || state === 'result')) {
-    clearTimer();
-    setPad('false-start', '측정이 중단됐어요', '화면을 계속 보고 측정해 주세요', '눌러서 이 측정을 다시 시작하세요.');
+    clearCurrentTest();
+    setPad('false-start', '측정이 중단됐어요', '처음부터 다시 측정합니다', '지금까지의 기록을 모두 지웠습니다. 눌러서 1회차부터 다시 시작하세요.');
+    renderProgress();
   }
 });
 window.addEventListener('resize', () => {
