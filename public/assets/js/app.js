@@ -7,7 +7,8 @@ import {
   getWaitDelay,
   summarizeResults,
 } from './reaction-core.js?v=20260731-2';
-import { shareResult } from './share-result.js?v=20260805-2';
+import { shareResult } from './share-result.js?v=20260805-3';
+import { createReactionResultCard, getReactionShareText } from './result-card.js?v=20260805-1';
 
 const STORAGE_KEY = 'cora-reaction:records:v1';
 const NEXT_TRIAL_DELAY_MS = 1200;
@@ -39,6 +40,8 @@ let timerId = null;
 let readyAt = 0;
 let trials = [];
 let sessions = loadSessions();
+let shareImageBlob = null;
+let shareCardVersion = 0;
 
 function loadSessions() {
   try {
@@ -290,6 +293,9 @@ function startWaiting() {
 
 function clearCurrentTest() {
   clearTimer();
+  shareCardVersion += 1;
+  shareImageBlob = null;
+  shareResultButton.disabled = true;
   trials = [];
   resultPanel.hidden = true;
   currentValue.textContent = '—';
@@ -326,6 +332,22 @@ function showTrialResult(milliseconds) {
     distributionResult.hidden = false;
     renderDistribution(summary.average);
     setPad('complete', '측정 완료', `평균 ${summary.average} ms`, `최고 기록은 ${summary.best} ms입니다. 눌러서 새 테스트를 시작하세요.`);
+    const cardVersion = ++shareCardVersion;
+    shareImageBlob = null;
+    shareResultButton.disabled = true;
+    shareStatus.textContent = '공유 이미지 준비 중...';
+    createReactionResultCard({ average: summary.average, best: summary.best, trials: [...trials] })
+      .then((blob) => {
+        if (state !== 'complete' || cardVersion !== shareCardVersion) return;
+        shareImageBlob = blob;
+        shareResultButton.disabled = false;
+        shareStatus.textContent = '';
+      })
+      .catch(() => {
+        if (state !== 'complete' || cardVersion !== shareCardVersion) return;
+        shareResultButton.disabled = false;
+        shareStatus.textContent = '이미지를 만들지 못해 기록만 공유합니다.';
+      });
     window.requestAnimationFrame(() => {
       distributionResult.scrollIntoView({
         behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
@@ -375,11 +397,16 @@ shareResultButton.addEventListener('click', async () => {
   shareResultButton.disabled = true;
   const result = await shareResult({
     title: 'Cora 반응속도 테스트 결과',
-    text: `반응속도 테스트에서 5회 평균 ${summary.average}ms · 최고 ${summary.best}ms를 기록했어요.`,
+    text: getReactionShareText(summary),
     url: 'https://reaction.cora1022.com/',
+    imageBlob: shareImageBlob,
+    imageName: `cora-reaction-${summary.average}ms.png`,
   });
   shareResultButton.disabled = false;
-  if (result === 'shared') shareStatus.textContent = '공유했습니다.';
+  if (result === 'image-shared') shareStatus.textContent = '이미지와 결과를 공유했습니다.';
+  if (result === 'shared') shareStatus.textContent = '결과와 주소를 공유했습니다.';
+  if (result === 'image-copied') shareStatus.textContent = '결과 이미지를 복사했습니다. 채팅창에 붙여넣으세요.';
+  if (result === 'downloaded') shareStatus.textContent = '결과 이미지를 저장했습니다.';
   if (result === 'copied') shareStatus.textContent = '결과와 주소를 복사했습니다.';
   if (result === 'unavailable') shareStatus.textContent = '이 브라우저에서는 공유할 수 없습니다.';
 });

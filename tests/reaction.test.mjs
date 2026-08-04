@@ -15,6 +15,7 @@ import {
   summarizeResults,
 } from '../public/assets/js/reaction-core.js';
 import { shareResult } from '../public/assets/js/share-result.js';
+import { getReactionShareText } from '../public/assets/js/result-card.js';
 
 test('대기 시간은 지정한 범위 안에서 결정된다', () => {
   assert.equal(getWaitDelay(() => 0), MIN_WAIT_MS);
@@ -124,4 +125,71 @@ test('PC에서는 시스템 공유창 대신 바로 복사한다', async () => {
   assert.equal(result, 'copied');
   assert.equal(shared, false);
   assert.equal(copied, '평균 220ms\nhttps://reaction.cora1022.com/');
+});
+
+test('반응속도 공유 문구에 평균과 최고 기록을 담는다', () => {
+  assert.equal(
+    getReactionShareText({ average: 220, best: 180 }),
+    '반응속도 테스트에서 5회 평균 220ms · 최고 180ms를 기록했어요.',
+  );
+});
+
+test('모바일 공유가 파일을 지원하면 PNG 결과 카드를 첨부한다', async () => {
+  let payload;
+  class FakeFile {
+    constructor(parts, name, options) {
+      this.parts = parts;
+      this.name = name;
+      this.type = options.type;
+    }
+  }
+  const imageBlob = new Blob(['image'], { type: 'image/png' });
+  const result = await shareResult(
+    {
+      title: '반응속도 결과',
+      text: '평균 220ms',
+      url: 'https://reaction.cora1022.com/',
+      imageBlob,
+      imageName: 'cora-reaction-220ms.png',
+    },
+    {
+      FileApi: FakeFile,
+      navigatorApi: {
+        userAgent: 'Android',
+        canShare(value) { return value.files?.length === 1; },
+        async share(value) { payload = value; },
+      },
+    },
+  );
+  assert.equal(result, 'image-shared');
+  assert.equal(payload.files[0].name, 'cora-reaction-220ms.png');
+  assert.equal(payload.files[0].type, 'image/png');
+});
+
+test('PC에서는 PNG 결과 카드를 클립보드 이미지로 복사한다', async () => {
+  let clipboardItems;
+  class FakeClipboardItem {
+    constructor(data) { this.data = data; }
+  }
+  const imageBlob = new Blob(['image'], { type: 'image/png' });
+  const result = await shareResult(
+    {
+      title: '반응속도 결과',
+      text: '평균 220ms',
+      url: 'https://reaction.cora1022.com/',
+      imageBlob,
+    },
+    {
+      ClipboardItemApi: FakeClipboardItem,
+      BlobApi: Blob,
+      navigatorApi: {
+        userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
+        clipboard: { async write(value) { clipboardItems = value; } },
+      },
+    },
+  );
+  assert.equal(result, 'image-copied');
+  assert.equal(clipboardItems.length, 1);
+  assert.equal(clipboardItems[0].data['image/png'], imageBlob);
+  assert.equal(clipboardItems[0].data['text/plain'].type, 'text/plain');
 });
