@@ -19,6 +19,8 @@ const required = [
   'assets/js/analytics.js',
   'assets/js/app.js',
   'assets/js/reaction-core.js',
+  'assets/js/result-card.js',
+  'assets/js/share-result.js',
 ];
 
 for (const file of required) await readFile(resolve(source, file));
