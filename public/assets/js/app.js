@@ -7,7 +7,7 @@ import {
   getWaitDelay,
   summarizeResults,
 } from './reaction-core.js?v=20260731-2';
-import { shareResult } from './share-result.js?v=20260805-1';
+import { shareResult } from './share-result.js?v=20260805-2';
 
 const STORAGE_KEY = 'cora-reaction:records:v1';
 const NEXT_TRIAL_DELAY_MS = 1200;

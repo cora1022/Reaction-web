@@ -94,7 +94,7 @@ test('결과 공유를 지원하면 시스템 공유창을 사용한다', async 
   let payload;
   const result = await shareResult(
     { title: '결과', text: '평균 220ms', url: 'https://reaction.cora1022.com/' },
-    { navigatorApi: { async share(value) { payload = value; } } },
+    { navigatorApi: { userAgent: 'Android', async share(value) { payload = value; } } },
   );
   assert.equal(result, 'shared');
   assert.deepEqual(payload, { title: '결과', text: '평균 220ms', url: 'https://reaction.cora1022.com/' });
@@ -107,5 +107,21 @@ test('시스템 공유창이 없으면 결과와 주소를 복사한다', async 
     { navigatorApi: { clipboard: { async writeText(value) { copied = value; } } } },
   );
   assert.equal(result, 'copied');
+  assert.equal(copied, '평균 220ms\nhttps://reaction.cora1022.com/');
+});
+
+test('PC에서는 시스템 공유창 대신 바로 복사한다', async () => {
+  let shared = false;
+  let copied = '';
+  const result = await shareResult(
+    { title: '결과', text: '평균 220ms', url: 'https://reaction.cora1022.com/' },
+    { navigatorApi: {
+      userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
+      async share() { shared = true; },
+      clipboard: { async writeText(value) { copied = value; } },
+    } },
+  );
+  assert.equal(result, 'copied');
+  assert.equal(shared, false);
   assert.equal(copied, '평균 220ms\nhttps://reaction.cora1022.com/');
 });

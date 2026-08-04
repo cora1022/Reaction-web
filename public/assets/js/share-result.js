@@ -1,8 +1,11 @@
 export async function shareResult({ title, text, url }, environment = {}) {
   const navigatorApi = environment.navigatorApi ?? globalThis.navigator;
   const documentApi = environment.documentApi ?? globalThis.document;
+  const userAgent = navigatorApi?.userAgent ?? '';
+  const mobileDevice = /Android|iPhone|iPad|iPod/i.test(userAgent)
+    || (navigatorApi?.platform === 'MacIntel' && navigatorApi?.maxTouchPoints > 1);
 
-  if (typeof navigatorApi?.share === 'function') {
+  if (mobileDevice && typeof navigatorApi?.share === 'function') {
     try {
       await navigatorApi.share({ title, text, url });
       return 'shared';
