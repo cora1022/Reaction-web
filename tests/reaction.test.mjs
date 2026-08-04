@@ -14,6 +14,7 @@ import {
   secureRandomInt,
   summarizeResults,
 } from '../public/assets/js/reaction-core.js';
+import { shareResult } from '../public/assets/js/share-result.js';
 
 test('대기 시간은 지정한 범위 안에서 결정된다', () => {
   assert.equal(getWaitDelay(() => 0), MIN_WAIT_MS);
@@ -87,4 +88,24 @@ test('AdSense 검토에 필요한 광고 식별자와 개인정보 안내를 제
   assert.match(privacy, /policies\.google\.com\/technologies\/ads/);
   assert.match(privacy, /Google 인증 동의 관리 플랫폼/);
   assert.match(analytics, /analyticsWasLoaded/);
+});
+
+test('결과 공유를 지원하면 시스템 공유창을 사용한다', async () => {
+  let payload;
+  const result = await shareResult(
+    { title: '결과', text: '평균 220ms', url: 'https://reaction.cora1022.com/' },
+    { navigatorApi: { async share(value) { payload = value; } } },
+  );
+  assert.equal(result, 'shared');
+  assert.deepEqual(payload, { title: '결과', text: '평균 220ms', url: 'https://reaction.cora1022.com/' });
+});
+
+test('시스템 공유창이 없으면 결과와 주소를 복사한다', async () => {
+  let copied = '';
+  const result = await shareResult(
+    { title: '결과', text: '평균 220ms', url: 'https://reaction.cora1022.com/' },
+    { navigatorApi: { clipboard: { async writeText(value) { copied = value; } } } },
+  );
+  assert.equal(result, 'copied');
+  assert.equal(copied, '평균 220ms\nhttps://reaction.cora1022.com/');
 });
