@@ -16,6 +16,7 @@ import {
 } from '../public/assets/js/reaction-core.js';
 import { shareResult } from '../public/assets/js/share-result.js';
 import { getReactionShareText } from '../public/assets/js/result-card.js';
+import { createReactionSoundController, getReactionSoundPattern } from '../public/assets/js/sound.js';
 
 test('대기 시간은 지정한 범위 안에서 결정된다', () => {
   assert.equal(getWaitDelay(() => 0), MIN_WAIT_MS);
@@ -75,6 +76,52 @@ test('화면은 핵심 모듈과 5회 진행 UI를 사용한다', async () => {
   assert.match(html, /총 5회 측정/);
   assert.match(html, /data-reaction-pad/);
   assert.match(html, /data-distribution-chart/);
+});
+
+test('시작과 결과에만 효과음을 사용하고 초록 신호는 무음이다', async () => {
+  const app = await readFile(new URL('../public/assets/js/app.js', import.meta.url), 'utf8');
+  const readySignal = app.match(/function showReadySignal\(\) \{([\s\S]*?)\n\}/)?.[1] ?? '';
+
+  assert.ok(getReactionSoundPattern('start').length > 0);
+  assert.ok(getReactionSoundPattern('result').length > 0);
+  assert.ok(getReactionSoundPattern('complete').length > getReactionSoundPattern('result').length);
+  assert.deepEqual(getReactionSoundPattern('ready'), []);
+  assert.match(app, /sounds\.play\('start'\)/);
+  assert.match(app, /sounds\.play\(trials\.length >= TRIAL_COUNT \? 'complete' : 'result'\)/);
+  assert.match(app, /window\.setTimeout\(showReadySignal, delay\)/);
+  assert.doesNotMatch(readySignal, /sounds\.play/);
+});
+
+test('효과음 컨트롤러가 음을 예약하고 초록 신호는 예약하지 않는다', () => {
+  const oscillators = [];
+  const audioParameter = () => ({
+    value: 0,
+    setValueAtTime() {},
+    exponentialRampToValueAtTime() {},
+  });
+  const context = {
+    currentTime: 1,
+    destination: {},
+    state: 'running',
+    createGain: () => ({ gain: audioParameter(), connect() {} }),
+    createOscillator: () => {
+      const oscillator = {
+        frequency: audioParameter(),
+        connect() {},
+        start(time) { oscillator.started = time; },
+        stop(time) { oscillator.stopped = time; },
+      };
+      oscillators.push(oscillator);
+      return oscillator;
+    },
+  };
+  const sounds = createReactionSoundController({ contextFactory: () => context });
+
+  assert.equal(sounds.play('start'), true);
+  assert.equal(oscillators.length, getReactionSoundPattern('start').length);
+  assert.ok(oscillators.every((oscillator) => oscillator.stopped > oscillator.started));
+  assert.equal(sounds.play('ready'), false);
+  assert.equal(oscillators.length, getReactionSoundPattern('start').length);
 });
 
 test('AdSense 검토에 필요한 광고 식별자와 개인정보 안내를 제공한다', async () => {
