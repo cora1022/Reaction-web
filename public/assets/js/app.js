@@ -9,6 +9,7 @@ import {
 } from './reaction-core.js?v=20260731-2';
 import { shareResult } from './share-result.js?v=20260805-3';
 import { createReactionResultCard, getReactionShareText } from './result-card.js?v=20260805-1';
+import { createReactionSoundController } from './sound.js?v=20260806-1';
 
 const STORAGE_KEY = 'cora-reaction:records:v1';
 const NEXT_TRIAL_DELAY_MS = 1200;
@@ -34,6 +35,7 @@ const shareStatus = document.querySelector('[data-share-status]');
 const historyList = document.querySelector('[data-history]');
 const historyEmpty = document.querySelector('[data-history-empty]');
 const bestEver = document.querySelector('[data-best-ever]');
+const sounds = createReactionSoundController();
 
 let state = 'idle';
 let timerId = null;
@@ -278,17 +280,20 @@ function renderHistory() {
   });
 }
 
+function showReadySignal() {
+  timerId = null;
+  readyAt = performance.now();
+  setPad('ready', '지금!', '클릭하세요', '화면을 누르는 순간 반응속도를 측정합니다.');
+}
+
 function startWaiting() {
   clearTimer();
   resultPanel.hidden = true;
   setPad('waiting', `${trials.length + 1} / ${TRIAL_COUNT}`, '초록색이 될 때까지 기다리세요', '지금 누르면 너무 이른 반응으로 처리됩니다.');
+  sounds.play('start');
   renderProgress();
   const delay = getWaitDelay();
-  timerId = window.setTimeout(() => {
-    timerId = null;
-    readyAt = performance.now();
-    setPad('ready', '지금!', '클릭하세요', '화면을 누르는 순간 반응속도를 측정합니다.');
-  }, delay);
+  timerId = window.setTimeout(showReadySignal, delay);
 }
 
 function clearCurrentTest() {
@@ -314,6 +319,7 @@ function showFalseStart() {
 
 function showTrialResult(milliseconds) {
   trials.push(milliseconds);
+  sounds.play(trials.length >= TRIAL_COUNT ? 'complete' : 'result');
   currentValue.textContent = `${milliseconds} ms`;
   bestValue.textContent = `${Math.min(...trials)} ms`;
   averageValue.textContent = `${summarizeResults(trials).average} ms`;
