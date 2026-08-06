@@ -15,7 +15,7 @@ import {
   summarizeResults,
 } from '../public/assets/js/reaction-core.js';
 import { shareResult } from '../public/assets/js/share-result.js';
-import { getReactionShareText } from '../public/assets/js/result-card.js';
+import { getReactionChartY, getReactionShareText } from '../public/assets/js/result-card.js';
 import { createReactionSoundController, getReactionSoundPattern } from '../public/assets/js/sound.js';
 
 test('대기 시간은 지정한 범위 안에서 결정된다', () => {
@@ -179,6 +179,17 @@ test('반응속도 공유 문구에 평균과 최고 기록을 담는다', () =>
     getReactionShareText({ average: 220, best: 180 }),
     '반응속도 테스트에서 5회 평균 220ms · 최고 180ms를 기록했어요.',
   );
+});
+
+test('결과 화면과 공유 이미지 그래프는 낮은 기록을 더 아래에 표시한다', async () => {
+  const lowerRecordY = getReactionChartY(180, { lower: 150, upper: 350, top: 30, height: 200 });
+  const higherRecordY = getReactionChartY(300, { lower: 150, upper: 350, top: 30, height: 200 });
+  const app = await readFile(new URL('../public/assets/js/app.js', import.meta.url), 'utf8');
+  const resultCard = await readFile(new URL('../public/assets/js/result-card.js', import.meta.url), 'utf8');
+
+  assert.ok(lowerRecordY > higherRecordY);
+  assert.match(app, /getReactionChartY\(value/);
+  assert.match(resultCard, /const yFor = \(value\) => getReactionChartY\(value/);
 });
 
 test('모바일 공유가 파일을 지원하면 PNG 결과 카드를 첨부한다', async () => {
