@@ -127,15 +127,12 @@ test('효과음 컨트롤러가 음을 예약하고 초록 신호는 예약하�
 test('AdSense 검토에 필요한 광고 식별자와 개인정보 안내를 제공한다', async () => {
   const html = await readFile(new URL('../public/index.html', import.meta.url), 'utf8');
   const privacy = await readFile(new URL('../public/privacy.html', import.meta.url), 'utf8');
-  const analytics = await readFile(new URL('../public/assets/js/analytics.js', import.meta.url), 'utf8');
-
   assert.match(html, /ca-pub-6044197403684738/);
   assert.match(html, /href="\/privacy\.html"/);
-  assert.match(html, /data-consent-settings/);
+  assert.doesNotMatch(html, /data-consent/);
   assert.match(privacy, /Google AdSense/);
   assert.match(privacy, /policies\.google\.com\/technologies\/ads/);
   assert.match(privacy, /Google 인증 동의 관리 플랫폼/);
-  assert.match(analytics, /analyticsWasLoaded/);
 });
 
 test('결과 공유를 지원하면 시스템 공유창을 사용한다', async () => {

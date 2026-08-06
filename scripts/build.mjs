@@ -16,7 +16,6 @@ const required = [
   'og.png',
   'assets/css/styles.css',
   'assets/js/ads.js',
-  'assets/js/analytics.js',
   'assets/js/app.js',
   'assets/js/reaction-core.js',
   'assets/js/result-card.js',
