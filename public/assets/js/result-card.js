@@ -44,6 +44,13 @@ export function getReactionShareText({ average, best }) {
   return `반응속도 테스트에서 5회 평균 ${average}ms · 최고 ${best}ms를 기록했어요.`;
 }
 
+export function getReactionChartY(value, { lower, upper, top = 0, height = 1 }) {
+  if (![value, lower, upper, top, height].every(Number.isFinite) || upper <= lower || height < 0) {
+    throw new RangeError('그래프 범위를 확인해 주세요.');
+  }
+  return top + (((upper - value) / (upper - lower)) * height);
+}
+
 export async function createReactionResultCard({ average, best, trials }, environment = {}) {
   const documentApi = environment.documentApi ?? globalThis.document;
   const ImageApi = environment.ImageApi ?? globalThis.Image;
@@ -106,7 +113,7 @@ export async function createReactionResultCard({ average, best, trials }, enviro
   const lower = Math.max(0, minimum - 35);
   const upper = Math.max(lower + 70, maximum + 35);
   const xFor = (index) => chart.x + ((index / Math.max(1, trials.length - 1)) * chart.width);
-  const yFor = (value) => chart.y + (((value - lower) / (upper - lower)) * chart.height);
+  const yFor = (value) => getReactionChartY(value, { lower, upper, top: chart.y, height: chart.height });
 
   context.strokeStyle = '#e7e9f1';
   context.lineWidth = 2;

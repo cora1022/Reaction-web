@@ -8,7 +8,7 @@ import {
   summarizeResults,
 } from './reaction-core.js?v=20260731-2';
 import { shareResult } from './share-result.js?v=20260805-3';
-import { createReactionResultCard, getReactionShareText } from './result-card.js?v=20260805-1';
+import { createReactionResultCard, getReactionChartY, getReactionShareText } from './result-card.js?v=20260806-2';
 import { createReactionSoundController } from './sound.js?v=20260806-1';
 
 const STORAGE_KEY = 'cora-reaction:records:v1';
@@ -120,7 +120,7 @@ function renderTrialChart() {
   const lower = Math.max(0, minimum - 45);
   const upper = Math.max(lower + 90, maximum + 45);
   const xFor = (index) => padding.left + ((TRIAL_COUNT === 1 ? 0.5 : index / (TRIAL_COUNT - 1)) * plotWidth);
-  const yFor = (value) => padding.top + (((upper - value) / (upper - lower)) * plotHeight);
+  const yFor = (value) => getReactionChartY(value, { lower, upper, top: padding.top, height: plotHeight });
 
   context.font = '700 11px system-ui, sans-serif';
   context.textBaseline = 'middle';
