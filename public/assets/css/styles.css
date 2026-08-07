@@ -37,7 +37,7 @@ h1, h2, h3, strong { color: var(--navy); font-family: var(--font-display); font-
 .header-inner { display: flex; min-height: 66px; align-items: center; justify-content: space-between; gap: 24px; }
 .brand { display: flex; align-items: center; gap: 8px; text-decoration: none; }
 .brand-mark { display: block; width: 34px; height: 34px; object-fit: contain; }
-.brand strong { font-size: 1.24rem; font-weight: 900; line-height: 1; letter-spacing: -.045em; }
+.brand strong { font-family: Pretendard, "Noto Sans KR", "Apple SD Gothic Neo", system-ui, -apple-system, "Segoe UI", sans-serif; font-size: 1.24rem; font-weight: 900; line-height: 1; letter-spacing: -.045em; }
 .site-header nav { display: flex; align-items: center; gap: 4px; }
 .site-header nav a { padding: 8px 10px; border-radius: 7px; color: #475569; font-size: .9rem; font-weight: 650; text-decoration: none; }
 .site-header nav a:hover { background: #f3f2ff; color: #4657d2; }
